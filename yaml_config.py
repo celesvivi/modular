@@ -1,12 +1,12 @@
 import yaml, os, log
 from functools import reduce
-from pathlib import path
+from pathlib import Path
 
 class config:
     def __init__(self, config_path, log = None):
         self.log = log
-        self.version = 1
-        self.config = self.load_config(config_path)
+        self.version = 1.0
+        self.config = self.load_config(os.path.join(config_path, 'config.yaml'))
 
     def _log(self, message: str, log_type: str = "info"):
         if self.log:
@@ -24,11 +24,12 @@ class config:
             },
             'author': 'celestine'
         }
+        self._log("Default config created", log.TypeOfError.info)
         return config
 
-    def save_config(config, config_path):
+    def save_config(self, config, config_path):
         with open(config_path, 'w') as file:
-            yaml.dump(config, default_flow_style = False, indent = 2)
+            yaml.dump(config, file, default_flow_style = False, indent = 2)
     
     def setup_config(self, config_path):
         if not os.path.exists(config_path):
@@ -38,7 +39,7 @@ class config:
 
     def load_config(self, config_path):
         try:
-            with open(config_path, 'r') as file:
+            with open(config_path, 'r') as file: 
                 config = yaml.safe_load(file)
             self._log("Load config successfully", log.TypeOfError.info)
             return config

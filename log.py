@@ -5,6 +5,7 @@ class TypeOfError(Enum):
     action = 2
     error = 3
 class Logger:
+    @staticmethod
     def get_app_directory():
         if getattr(sys, 'frozen', False):
             return os.path.dirname(sys.executable)
@@ -13,8 +14,9 @@ class Logger:
 
 
     def __init__(self, file_path = "default", name = "default"):
+        self.version = 1.1
         if file_path == "default":
-            log_dir = get_app_directory()
+            log_dir = self.get_app_directory()
         else:
             log_dir = file_path
             if not os.path.exists(log_dir):
@@ -33,8 +35,12 @@ class Logger:
                 f.write("Log created\n")
 
 
-    def log(self, message, log_type): 
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    def log(self, message, log_type = None): 
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        if isinstance(log_type, TypeOfError):
+            log_type = log_type.value
+
         match log_type:
             case 1:
                 log_entry = f"[{timestamp}] INFO: {message}\n"
@@ -42,7 +48,7 @@ class Logger:
                 log_entry = f"[{timestamp}] DO: {message}\n"
             case 3: 
                 log_entry = f"[{timestamp}] ERROR: {message}\n"
-            case :
+            case _:
                 log_entry = f"[{timestamp}] UNKNOWN: {message}\n"
         with open(self.log_path, 'a', encoding='utf-8') as f:
                 f.write(log_entry)
